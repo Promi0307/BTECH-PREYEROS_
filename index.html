@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BTECH PREYEROS Voting — BTech (Tech) Only</title>
+<style>
+  :root{
+    --brand:#007acc; --brand-dark:#005fa3; --muted:#555;
+    --card-bg:rgba(255,255,255,0.96); --shadow:0 8px 25px rgba(0,0,0,.28);
+    --radius:12px;
+    --success:#4CAF50; --warning:#FF9800; --danger:#F44336;
+    --primary:#2196F3; --secondary:#9C27B0; --info:#00BCD4;
+    --admin-blue:#1976D2; --admin-blue-light:#E3F2FD; --admin-blue-dark:#0D47A1;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family:'Segoe UI', system-ui, -apple-system, sans-serif; background:url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed; background-size:cover; -webkit-text-size-adjust:100%;}
+  .container{width:92%; max-width:520px; margin:32px auto; background:var(--card-bg); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); font-size:16px; line-height:1.3}
+  .logo{display:block;margin:6px auto 12px;width:84px;height:84px;border-radius:10px;object-fit:contain}
+  h1,h2{font-size:20px;margin:6px 0;text-align:center}
+  p{margin:6px 0 12px;text-align:center;font-size:15px}
+  label{display:block;font-weight:700;margin:10px 0 6px;font-size:15px}
+  input,select,textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:15px;margin-bottom:10px; transition: all 0.3s}
+  input:focus, select:focus{outline:none; border-color:var(--brand); box-shadow:0 0 0 2px rgba(0,122,204,0.2)}
+  .row{display:flex;gap:10px}
+  .row > *{flex:1}
+  button{width:100%;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer; transition: all 0.3s}
+  button:hover{transform: translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.2)}
+  button.small{padding:8px;font-size:14px}
+  button.ghost{background:transparent;color:var(--brand);border:1px solid #cde6ff}
+  button.success{background:var(--success)}
+  button.warning{background:var(--warning)}
+  button.danger{background:var(--danger)}
+  button.primary{background:var(--primary)}
+  button.secondary{background:var(--secondary)}
+  .link{text-align:center;color:var(--brand);cursor:pointer;text-decoration:underline;margin-top:10px;font-size:14px}
+  .note{background:#fff8e1;border:1px solid #ffe082;padding:10px;border-radius:10px;font-size:14px;color:#7a5d00;margin-bottom:10px}
+  .error{color:var(--danger);font-weight:700;text-align:center;min-height:20px}
+  .success{color:var(--success);font-weight:700;text-align:center;min-height:20px}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:#f8fbff;padding:6px 10px;border-radius:999px;border:1px solid #d0e7ff;font-weight:700}
+  .contact{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+  .slide{display:none}
+  .active{display:block}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left}
+  th{background:linear-gradient(to right, var(--primary), var(--info)); color:white}
+  .muted{color:var(--muted);font-size:13px}
+  .admin-winner{font-weight:900; color:var(--success)}
+  .warning-box{background:#ffebee;border:1px solid var(--danger);padding:10px;border-radius:10px;font-size:14px;color:#b00020;margin-bottom:10px}
+  .vote-summary{background:#f8fbff;border:1px solid #d0e7ff;padding:10px;border-radius:10px;margin-bottom:10px}
+  .vote-summary-item{display:flex;justify-content:space-between;margin-bottom:5px}
+  .results-grid{display:grid; grid-template-columns:1fr; gap:15px; margin-top:15px}
+  .result-card{background:white; border-radius:10px; padding:15px; box-shadow:0 3px 10px rgba(0,0,0,0.1); border-left:4px solid var(--primary)}
+  .result-card.winner{border-left-color:var(--success); background:linear-gradient(to right, #e8f5e8, white)}
+  .result-card h4{margin-top:0; color:var(--primary)}
+  .result-card.winner h4{color:var(--success)}
+  .candidate-row{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0}
+  .candidate-row:last-child{border-bottom:none}
+  .candidate-name{font-weight:600}
+  .candidate-votes{display:flex; align-items:center; gap:5px}
+  .vote-bar{height:8px; background:#e0e0e0; border-radius:4px; margin-top:5px; overflow:hidden}
+  .vote-fill{height:100%; background:linear-gradient(to right, var(--primary), var(--info)); border-radius:4px; transition:width 0.5s}
+  .vote-fill.winner{background:linear-gradient(to right, var(--success), #81C784)}
+  .winner-badge{background:var(--success); color:white; padding:2px 8px; border-radius:10px; font-size:12px; margin-left:5px}
+  .rocket-indicator{display:inline-flex; align-items:center; gap:2px}
+  .status-icon{margin-right:5px}
+  
+  /* Receipt Styles */
+  .receipt-container{background:white; border:2px dashed #007acc; border-radius:10px; padding:20px; margin:20px 0; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+  .receipt-header{font-size:22px; font-weight:bold; color:#007acc; margin-bottom:15px}
+  .receipt-subheader{font-size:16px; color:#555; margin-bottom:10px}
+  .receipt-details{text-align:left; background:#f9f9f9; padding:15px; border-radius:8px; margin:15px 0}
+  .receipt-row{display:flex; justify-content:space-between; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #ddd}
+  .receipt-row:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0}
+  .receipt-label{font-weight:bold; color:#333}
+  .receipt-value{color:#555}
+  .receipt-vote-number{font-size:28px; font-weight:bold; color:#007acc; margin:15px 0; background:#f0f8ff; padding:10px; border-radius:8px}
+  .receipt-footer{font-size:14px; color:#777; margin-top:20px; line-height:1.5}
+  .screenshot-instruction{background:#fff8e1; border:1px solid #ffd54f; padding:12px; border-radius:8px; margin:15px 0; font-size:14px; text-align:center}
+  .receipt-watermark{position:relative}
+  .receipt-watermark:after{content:"OFFICIAL RECEIPT"; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) rotate(-45deg); font-size:40px; color:rgba(0,122,204,0.1); font-weight:bold; pointer-events:none; z-index:1}
+  
+  /* Admin Blue Theme */
+  .admin-theme{background:var(--admin-blue-light); border-left:4px solid var(--admin-blue)}
+  .admin-theme h2, .admin-theme h3, .admin-theme h4{color:var(--admin-blue-dark)}
+  .admin-theme .note{background:#E3F2FD; border-color:var(--admin-blue); color:var(--admin-blue-dark)}
+  .admin-progress-bar{background:linear-gradient(to right, var(--admin-blue), #64B5F6)}
+  .admin-button{background:var(--admin-blue)}
+  .admin-button:hover{background:var(--admin-blue-dark)}
+  
+  /* Loading Animation */
+  .loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin 1s ease-in-out infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .blue-loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(25,118,210,.3);border-radius:50%;border-top-color:var(--admin-blue);animation:spin 1s ease-in-out infinite}
+  
+  /* Log Styles */
+  .log-container{max-height:400px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:8px;padding:10px;background:#fafafa;margin-top:10px}
+  .log-entry{padding:8px;margin-bottom:6px;border-radius:6px;font-size:13px;display:flex;align-items:flex-start;gap:10px}
+  .log-entry:nth-child(odd){background:#f0f0f0}
+  .log-timestamp{color:#666;font-size:12px;min-width:140px}
+  .log-type{font-weight:bold;padding:2px 6px;border-radius:4px;font-size:11px;text-transform:uppercase}
+  .log-type.info{background:#E3F2FD;color:#1976D2}
+  .log-type.warning{background:#FFF3E0;color:#F57C00}
+  .log-type.error{background:#FFEBEE;color:#D32F2F}
+  .log-type.success{background:#E8F5E9;color:#388E3C}
+  .log-message{flex:1}
+  
+  /* small phone tweaks */
+  @media (max-width:360px){
+    .container{padding:14px;font-size:15px}
+    .logo{width:68px;height:68px}
+    input,select{padding:10px}
+    button{padding:11px}
+    .receipt-header{font-size:18px}
+    .receipt-vote-number{font-size:24px}
+  }
+  @media (min-width: 768px) {
+    .results-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div style="text-align:center;font-weight:900;font-size:18px;margin-bottom:6px;background:linear-gradient(to right, #1a2a6c, #b21f1f); -webkit-background-clip:text; -webkit-text-fill-color:transparent">Malawi University of Business and Applied Sciences</div>
+    <img src="logo.jpeg" alt="MUBAS Logo" class="logo">
+
+    <!-- SLIDE 1: SELECT ROLE (ADMIN or STUDENT LOGIN) -->
+    <section id="slide1" class="slide active" aria-labelledby="roleHeading">
+      <h1 id="roleHeading">BTECH PREYEROS Voting</h1>
+      <p class="muted">Only <strong>Technical Education (Technology) — Honours</strong> students may vote. Admins control the process.</p>
+
+      <div class="note">If you are a student, pick <strong>Student Login</strong> and register with your exact name + student number from the B.Tech (Tech) list. Admins use <strong>Admin Login</strong>.</div>
+
+      <div style="display:flex;gap:10px">
+        <button id="btnStudentRole" class="primary">Student Login</button>
+        <button id="btnAdminRole" class="ghost" style="background:#fff;border:1px solid #bee3ff;color:var(--brand)">Admin Login</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: STUDENT SIGNUP / LOGIN (Separate flows: register, then login) -->
+    <section id="studentEntry" class="slide" aria-labelledby="studentHeading">
+      <h2 id="studentHeading">Student — Register or Login</h2>
+
+      <div class="error" id="studentError"></div>
+
+      <!-- registration area -->
+      <div id="studentRegister">
+        <label>First Name</label><input id="firstName" type="text" autocomplete="given-name" />
+        <label>Surname</label><input id="surname" type="text" autocomplete="family-name" />
+        <label>Student Number (registration no.)</label><input id="studentNo" type="text" placeholder="e.g. 202409940091" inputmode="numeric" />
+        <label>Username (create)</label><input id="stuUsername" type="text" />
+        <label>Email or Phone</label><input id="stuContact" type="text" />
+        <label>Password</label><input id="stuPass" type="password" />
+        <label>Confirm Password</label><input id="stuConfirm" type="password" />
+        <div style="margin-bottom:8px"><input id="showStuPass" type="checkbox" /> <label style="display:inline;font-weight:600">Show passwords</label></div>
+        <button id="btnStuRegister" class="primary">Register (Verify)</button>
+        <div class="link" id="gotoStuLogin">Already registered? Login</div>
+      </div>
+
+      <!-- login area -->
+      <div id="studentLogin" style="display:none;margin-top:10px">
+        <div class="success" id="welcomeStudent" style="display:none"></div>
+        <label>Username</label><input id="stuLoginUser" type="text" />
+        <label>Password</label><input id="stuLoginPass" type="password" />
+        <div style="margin-bottom:8px"><input id="showStuLogin" type="checkbox" /> <label style="display:inline;font-weight:600">Show password</label></div>
+        <button id="btnStuLogin" class="primary">Login to Vote</button>
+        <div class="link" id="backToRegister">Back to Register</div>
+      </div>
+
+      <div class="link" onclick="goTo('slide1')">Back to role</div>
+    </section>
+
+    <!-- SLIDE 3: VOTING -->
+    <section id="voteSlide" class="slide" aria-labelledby="voteHeading">
+      <h2 id="voteHeading">Vote — Choose One per Position</h2>
+      <div class="error" id="voteError"></div>
+      <div class="muted" id="voterInfo" style="text-align:center;margin-bottom:8px"></div>
+
+      <label>Best Admin</label>
+      <select id="opt_admin">
+        <option>Wezzie</option><option>Favour</option><option>Victoria Jimmy</option>
+      </select>
+
+      <label>Early Student</label>
+      <select id="opt_early">
+        <option>Moses Festus</option><option>Noel Batson</option><option>Magret</option>
+      </select>
+
+      <label>Late Sleeping Student</label>
+      <select id="opt_late">
+        <option>Wachisa Kayinga</option><option>Victoria Jimmy</option><option>Bullal</option>
+      </select>
+
+      <label>WAKUMASTAND of the Year</label>
+      <select id="opt_waka">
+        <option>Miracle</option><option>Uchiz</option><option>Ngozo</option>
+      </select>
+
+      <label>Best Information Provider</label>
+      <select id="opt_provider">
+        <option>Moses Festus</option><option>Wachisa Kayinga</option><option>Wezzie</option>
+      </select>
+
+      <label>Best Artist of the Year</label>
+      <select id="opt_artist">
+        <option>Bullal Al</option><option>Danie</option>
+      </select>
+
+      <label>Best Stickers Provider</label>
+      <select id="opt_sticker">
+        <option>Victoria Maphalabungu</option><option>Wezzie</option><option>Victoria Jimmy</option>
+      </select>
+
+      <button id="btnReviewVote" class="primary">Review My Vote</button>
+
+      <div class="link" onclick="logoutStudent()">Logout</div>
+    </section>
+
+    <!-- SLIDE 4: VOTE CONFIRMATION -->
+    <section id="confirmVote" class="slide">
+      <h2>Confirm Your Vote</h2>
+      <div class="muted" id="confirmVoterInfo" style="text-align:center;margin-bottom:8px"></div>
+      
+      <div class="vote-summary" id="voteSummary"></div>
+      
+      <div class="warning-box">
+        <strong>⚠️ Warning:</strong> Once submitted, you cannot change your vote. This action is irreversible.
+      </div>
+      
+      <div style="display:flex;gap:10px">
+        <button id="btnBackToEdit" class="ghost" style="background:#fff;border:1px solid #bee3ff;color:var(--brand)">Go Back to Edit</button>
+        <button id="btnFinalSubmit" class="success">Submit Vote</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: AFTER VOTING -->
+    <section id="afterVote" class="slide">
+      <h2 style="color:var(--success)">✅ Thank you — Vote received</h2>
+      <p id="afterVoteMsg" class="muted"></p>
+      <p><strong>Results will be released on 20 November 2025.</strong></p>
+      
+      <div class="screenshot-instruction">
+        <strong>📱 IMPORTANT: Please take a screenshot of your receipt below</strong><br>
+        This is your proof of voting. Keep it for your records.
+      </div>
+      
+      <div class="receipt-container receipt-watermark" id="receipt">
+        <div class="receipt-header">BTECH PREYEROS VOTING RECEIPT</div>
+        <div class="receipt-subheader">Malawi University of Business and Applied Sciences</div>
+        
+        <div class="receipt-vote-number" id="voteNumber">Vote #1</div>
+        
+        <div class="receipt-details">
+          <div class="receipt-row">
+            <span class="receipt-label">Voter Name:</span>
+            <span class="receipt-value" id="receiptName">Promise Chisunkha</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Student Number:</span>
+            <span class="receipt-value" id="receiptStudentNo">202409940091</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Date & Time:</span>
+            <span class="receipt-value" id="receiptDateTime">15 Oct 2025, 10:30 AM</span>
+          </div>
+          <div class="receipt-row" style="margin-top:10px;padding-top:10px;border-top:2px solid #007acc">
+            <span class="receipt-label">Your Votes:</span>
+            <span class="receipt-value"></span>
+          </div>
+          <div id="receiptVotes"></div>
+        </div>
+        
+        <div class="receipt-footer">
+          This receipt confirms your participation in the BTECH PREYEROS Voting.<br>
+          Keep this screenshot as your proof of voting.<br>
+          Results announcement: 15 November 2025
+        </div>
+      </div>
+      
+      <div class="link" onclick="goTo('slide1')">Back to home</div>
+    </section>
+
+    <!-- ADMIN LOGIN SLIDE -->
+    <section id="adminSlide" class="slide">
+      <h2>Administrator Login</h2>
+      <div class="muted" style="text-align:center">Use your admin credentials to access the dashboard</div>
+      <div class="error" id="adminError"></div>
+      <label>Student Number (admin)</label><input id="adminReg" type="text" />
+      <label>Admin Password</label><input id="adminPass" type="password" />
+      <div style="margin:8px 0"><input id="showAdminPass" type="checkbox" /> <label style="display:inline;font-weight:700">Show password</label></div>
+      <button id="btnAdminLogin" class="primary">Login as Admin</button>
+      <div class="link" onclick="goTo('slide1')">Back</div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="adminDash" class="slide admin-theme" aria-labelledby="adminDashHeading">
+      <h2 id="adminDashHeading">Admin Dashboard</h2>
+      
+      <div class="note">
+        <strong>Admin Privileges:</strong> As Promise Chisunkha (202409940091), you can test the voting system multiple times.
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button id="btnPause" class="small warning">Pause Voting</button>
+        <button id="btnResume" class="small ghost" style="background:#fff;border:1px solid #cfe9ff;color:var(--brand);display:none">Resume</button>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:12px; flex-wrap:wrap">
+        <button id="btnRefresh" class="small admin-button">Refresh Data</button>
+        <button id="btnExport" class="small secondary">Export JSON</button>
+        <button id="btnAdminSlip" class="small success">Download Admin Slip</button>
+        <button id="btnViewLog" class="small primary">View System Log</button>
+      </div>
+
+      <div style="margin-bottom:8px">
+        <strong>Admin-only code / data</strong>
+        <div style="margin-top:6px"><input id="adminDataCode" type="text" readonly style="background:#f7f7f7" /></div>
+        <div class="muted" style="margin-top:8px">This code is shown only to admins and used to access admin-level exports.</div>
+      </div>
+
+      <h3>Live Voting Progress</h3>
+      <div id="votingProgress" style="margin-bottom:15px">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+          <span>Voting Progress:</span>
+          <span id="progressText">0/0 (0%)</span>
+        </div>
+        <div style="height:10px; background:#e0e0e0; border-radius:5px; overflow:hidden">
+          <div id="progressBar" class="admin-progress-bar" style="height:100%; width:0%; transition:width 0.5s"></div>
+        </div>
+      </div>
+
+      <h3>Who has voted</h3>
+      <div id="votersWrap" style="max-height:220px;overflow:auto;border:1px solid #eee;padding:8px;border-radius:10px"></div>
+
+      <div style="margin-top:12px; display:flex; gap:10px">
+        <button id="btnViewAllResults" class="admin-button">View All Results</button>
+        <button id="btnViewWinners" class="success">View Winners Only</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <button onclick="goTo('slide1')" class="ghost" style="background:#fff;border:1px solid #cfe9ff;color:var(--brand)">Logout Admin</button>
+      </div>
+    </section>
+
+    <!-- ADMIN ALL RESULTS SLIDE -->
+    <section id="adminAllResults" class="slide admin-theme">
+      <h2>All Voting Results</h2>
+      <p class="muted">Complete results showing all candidates with votes and percentages</p>
+      
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button onclick="goTo('adminDash')" class="small ghost">Back to Dashboard</button>
+        <button id="btnExportFromResults" class="small secondary">Export Results</button>
+      </div>
+      
+      <div id="allResultsWrap" aria-live="polite"></div>
+    </section>
+
+    <!-- ADMIN WINNERS SLIDE -->
+    <section id="adminWinners" class="slide admin-theme">
+      <h2>🏆 Winners Only</h2>
+      <p class="muted">Final winners for each category</p>
+      
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button onclick="goTo('adminDash')" class="small ghost">Back to Dashboard</button>
+        <button id="btnExportWinners" class="small success">Export Winners</button>
+      </div>
+      
+      <div id="winnersWrap" aria-live="polite"></div>
+    </section>
+
+    <!-- ADMIN LOG SLIDE -->
+    <section id="adminLog" class="slide admin-theme">
+      <h2>System Log</h2>
+      <p class="muted">Complete activity log for the voting system</p>
+      
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button onclick="goTo('adminDash')" class="small ghost">Back to Dashboard</button>
+        <button id="btnExportLog" class="small secondary">Export Log</button>
+        <button id="btnClearLog" class="small danger">Clear Log</button>
+      </div>
+      
+      <div class="log-container" id="logContainer">
+        <div id="logLoading" style="text-align:center;padding:20px">
+          <div class="blue-loading"></div>
+          <div style="margin-top:10px">Loading log entries...</div>
+        </div>
+        <div id="logEntries"></div>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+/* ------------------------
+   Data: whitelist of BTECH students (from user PDF)
+   Keep this list trimmed to the entries you gave earlier.
+   ------------------------ */
+const BTECH_LIST = [
+  {sn:'202411280015', surname:'CHIGWEMEMBE', first:'JACQUELINE'},
+  {sn:'202400150006', surname:'CHIHANA', first:'ALICE'},
+  {sn:'202414820016', surname:'CHILAMWA', first:'MIRACLE'},
+  {sn:'202401280018', surname:'CHIPANJE', first:'MARTHA'},
+  {sn:'202403500012', surname:'CHITAYA', first:'SILVIA'},
+  {sn:'202400550017', surname:'CHIWOKO', first:'WONGANI'},
+  {sn:'202401080067', surname:'FELEZA', first:'CAROLINE'},
+  {sn:'202400390013', surname:'FRANCISCO', first:'ZAITHWA'},
+  {sn:'202400150013', surname:'FWETA', first:'CATHERINE'},
+  {sn:'202403080033', surname:'JORDAN', first:'SHIRAH'},
+  {sn:'202480340020', surname:'KABANGO', first:'CHIKONDI'},
+  {sn:'202408020008', surname:'KALHAZ', first:'PROMISE'},
+  {sn:'202400800017', surname:'KALIKUNDE', first:'WEZZIE'},
+  {sn:'202401280044', surname:'KALIZA', first:'TINYADE'},
+  {sn:'202409520135', surname:'KALONGONDA', first:'MARGRET'},
+  {sn:'202314740029', surname:'KALULU', first:'LOVENESS'},
+  {sn:'202400050014', surname:'KANTHALO', first:'CAROLINE'},
+  {sn:'202412630022', surname:'KANYAKATIRA', first:'HARRIET'},
+  {sn:'202414930036', surname:'KAONGA', first:'QUEEN'},
+  {sn:'202410140044', surname:'KAZEMBE', first:'AISHA'},
+  {sn:'202413800017', surname:'KHAULA', first:'FAITH'},
+  {sn:'202412800017', surname:'KONDOWE', first:'CARLO'},
+  {sn:'202414930049', surname:'KUMWENDA', first:'MERCY'},
+  {sn:'202480800089', surname:'LEKODI', first:'ELIZA'},
+  {sn:'202417560083', surname:'MAGALASI', first:'MARY'},
+  {sn:'202480500063', surname:'MALIMWE', first:'PEMPHERO'},
+  {sn:'202400960070', surname:'MAPALA', first:'FATSANI'},
+  {sn:'202400960074', surname:'MATHEWS', first:'EMILY'},
+  {sn:'202413330050', surname:'MATOLA', first:'DESIRE'},
+  {sn:'202411540297', surname:"M'BWANA", first:'GLORY'},
+  {sn:'202401160012', surname:'MILANZI', first:'REHANA'},
+  {sn:'2024410514330', surname:'MKANDAWIRE', first:'VICTORIA'},
+  {sn:'202416520062', surname:'MKUNYULI', first:'SHARON'},
+  {sn:'202401170030', surname:'MPATA', first:'LUMBANI'},
+  {sn:'202406150079', surname:'MPHALABUNGU', first:'VICTORIA'},
+  {sn:'202400170082', surname:'MWAFULIRWA', first:'UCHIZI'},
+  {sn:'202480970049', surname:'NDIPO', first:'COMFORT'},
+  {sn:'202400940148', surname:'NKHOMA', first:'MICHELLE'},
+  {sn:'202400380143', surname:'NKHWANGWA', first:'VITUMBIKO'},
+  {sn:'202411610049', surname:'NYIRENDA', first:'VICTORIA'},
+  {sn:'202415360044', surname:'PATSON', first:'DORIS'},
+  {sn:'202400930118', surname:'PORTIPHER', first:'DOREEN'},
+  {sn:'202407990049', surname:'SEKEYAH', first:'PEMPHERO'},
+  {sn:'202401160018', surname:'SINGARA', first:'AMEERAH'},
+  {sn:'202460010110', surname:'SINGINI', first:'WEZZIE'},
+  {sn:'202401390075', surname:'STIMA', first:'SHERIFFA'},
+  {sn:'202400890037', surname:'ZACHARIA', first:'MONICA'},
+  {sn:'202414860062', surname:'ZINGA', first:'FLORENCE'},
+  {sn:'202415010040', surname:'ALICK', first:'BRIGHT'},
+  {sn:'202412690048', surname:'ASSAN', first:'FAVOUR'},
+  {sn:'202400610031', surname:'AYUBU', first:'YUSUF'},
+  {sn:'202400240077', surname:'BANDA', first:'DENNIS'},
+  {sn:'202483970142', surname:'BANDA', first:'STEPHANO'},
+  {sn:'202400650062', surname:'BATSON', first:'NOEL'},
+  {sn:'202400520057', surname:'BIDERI', first:'ELISSA'},
+  {sn:'202401440002', surname:'BONGA', first:'MZATI'},
+  {sn:'202409940091', surname:'CHISUNKHA', first:'PROMISE'},
+  {sn:'202400100026', surname:'DZILEKWA', first:'DANIEL'},
+  {sn:'202482920041', surname:'FERGUS', first:'GRIFFIN'},
+  {sn:'202400520075', surname:'GONDWE', first:'DAVID'},
+  {sn:'202400970070', surname:'GUJAN', first:'ENOCK'},
+  {sn:'202400690107', surname:'JOHN', first:'EDWARD'},
+  {sn:'202413140087', surname:'KACHIGAMBA', first:'DAVIE'},
+  {sn:'202400220069', surname:'KALEMBERA', first:'KELVIN'},
+  {sn:'202400170153', surname:'KALUMBA', first:'MATHEWS'},
+  {sn:'202416070032', surname:'KALUMBU', first:'PRINCE'},
+  {sn:'202400640085', surname:'KARONGA', first:'KENNETH'},
+  {sn:'202406240144', surname:'KAUNDA', first:'UNITY'},
+  {sn:'202401000128', surname:'KAYINGA', first:'WACHISA'},
+  {sn:'202407910213', surname:'KHOLA', first:'JONATHAN'},
+  {sn:'202400190100', surname:'KUWERUZA', first:'JAPHET'},
+  {sn:'202403020062', surname:'LISIMBA', first:'GABRIEL'},
+  {sn:'202400130176', surname:'MAKAWA', first:'CHARLES'},
+  {sn:'202482920057', surname:'MALITHANO', first:'STANLEY'},
+  {sn:'202486680098', surname:'MANDA', first:'ABELL'},
+  {sn:'202480990081', surname:'MBAYA', first:'DANIEL'},
+  {sn:'202406720075', surname:'MICHENGA', first:'CLEMENT'},
+  {sn:'2024410514345', surname:'MMANGISA', first:'MAHARA'},
+  {sn:'202480050272', surname:'MNDALA', first:'JOSEPH'},
+  {sn:'202411380382', surname:'MOSES', first:'FESTUS'},
+  {sn:'202400120121', surname:'MWALE', first:'EDWARD'},
+  {sn:'202400040254', surname:'PELEKEZANI', first:'YANKHO'},
+  {sn:'202400980123', surname:'PHOKOSO', first:'HEPEL'},
+  {sn:'202415290118', surname:'SEMU', first:'PATRICK'},
+  {sn:'202412640352', surname:'WALUSA', first:'YANKHO'},
+  {sn:'202410580412', surname:'ZUNDE', first:'GIFT'}
+];
+
+/* ------------------------
+   Voting & State helpers
+   ------------------------ */
+const votedKey = sn => `btech_voted_${sn}`;
+const tallyKey = name => `btech_tally_${name}`; // name: admin|early|late|waka|provider|artist|sticker
+const allFields = ['admin','early','late','waka','provider','artist','sticker'];
+const ADMIN_ACCOUNTS = [
+  {sn:'202409940091', name:'Promise Chisunkha'}, // Promise
+  {sn:'202400800017', name:'Wezzie Kalikunde'}  // Wezzie
+];
+const ADMIN_PASSWORD = 'admin2025'; // demo password (change for production)
+
+/* local state */
+let currentStudent = null; // {sn, first, surname, username}
+let votingPaused = (localStorage.getItem('btech_paused') === 'true');
+let currentVoteChoices = null;
+
+/* ------------------------
+   Logging System
+   ------------------------ */
+const LOG_KEY = 'btech_vote_log';
+const MAX_LOG_ENTRIES = 1000;
+
+function addLogEntry(type, message, user = null) {
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    type: type,
+    message: message,
+    user: user
+  };
+  
+  const log = getLogEntries();
+  log.unshift(logEntry); // Add to beginning
+  
+  // Keep only the most recent entries
+  if (log.length > MAX_LOG_ENTRIES) {
+    log.splice(MAX_LOG_ENTRIES);
+  }
+  
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  return logEntry;
+}
+
+function getLogEntries() {
+  return JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+}
+
+function clearLog() {
+  localStorage.removeItem(LOG_KEY);
+  return true;
+}
+
+function exportLog() {
+  const log = getLogEntries();
+  const payload = {log, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); 
+  a.href = url; 
+  a.download = 'btech_preyeros_log.json';
+  document.body.appendChild(a); 
+  a.click(); 
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function renderLog() {
+  const logContainer = document.getElementById('logEntries');
+  const loading = document.getElementById('logLoading');
+  const log = getLogEntries();
+  
+  // Hide loading indicator
+  loading.style.display = 'none';
+  
+  if (log.length === 0) {
+    logContainer.innerHTML = '<div style="text-align:center;padding:20px;color:#666">No log entries yet</div>';
+    return;
+  }
+  
+  let html = '';
+  log.forEach(entry => {
+    const date = new Date(entry.timestamp);
+    const timeString = date.toLocaleString();
+    
+    html += `
+      <div class="log-entry">
+        <div class="log-timestamp">${timeString}</div>
+        <div class="log-type ${entry.type}">${entry.type}</div>
+        <div class="log-message">${entry.message} ${entry.user ? `<span style="color:#666">(${entry.user})</span>` : ''}</div>
+      </div>
+    `;
+  });
+  
+  logContainer.innerHTML = html;
+}
+
+/* ------------------------
+   UI navigation helpers
+   ------------------------ */
+function goTo(id){
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  
+  // Special handling for admin result slides
+  if(id === 'adminAllResults') {
+    renderAdminAllResults();
+  } else if(id === 'adminWinners') {
+    renderAdminWinners();
+  } else if(id === 'adminDash') {
+    renderAdminDashboard();
+  } else if(id === 'adminLog') {
+    renderLog();
+  }
+}
+
+/* ------------------------
+   Utility helpers
+   ------------------------ */
+const $ = id => document.getElementById(id);
+const toupper = s => (s||'').trim().toUpperCase();
+
+function findBtech(sn, surname, first){
+  const S = toupper(surname), F = toupper(first), N = (sn||'').trim();
+  return BTECH_LIST.find(x => x.sn === N && x.surname === S && x.first === F);
+}
+
+// Check if student is Promise Chisunkha (special admin privileges)
+function isPromiseChisunkha(sn) {
+  return sn === '202409940091';
+}
+
+// Get vote sequence number
+function getVoteSequenceNumber() {
+  const votersJsonKeys = Object.keys(localStorage).filter(k => k.startsWith('btech_voted_'));
+  return votersJsonKeys.length + 1; // +1 because we're about to add the current vote
+}
+
+/* ------------------------
+   Registration & login (student)
+   ------------------------ */
+$('btnStudentRole').addEventListener('click', ()=> goTo('studentEntry'));
+$('btnAdminRole').addEventListener('click', ()=> goTo('adminSlide'));
+
+// student register flow
+$('btnStuRegister')?.addEventListener('click', ()=>{ /* safety if not present */ });
+
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id === 'btnStuRegister'){
+    const fn = $('firstName').value.trim();
+    const snm = $('surname').value.trim();
+    const reg = $('studentNo').value.trim();
+    const user = $('stuUsername').value.trim();
+    const contact = $('stuContact').value.trim();
+    const pass = $('stuPass').value;
+    const conf = $('stuConfirm').value;
+    const err = $('studentError');
+    err.textContent = '';
+    if(!fn || !snm || !reg || !user || !contact || !pass || !conf){ err.textContent = 'All fields are required.'; return; }
+    if(pass.length < 6){ err.textContent = 'Password must be >= 6 chars.'; return; }
+    if(pass !== conf){ err.textContent = 'Passwords do not match.'; return; }
+
+    // verify against whitelist
+    const match = findBtech(reg, snm, fn);
+    if(!match){ err.textContent = 'Verification failed. Ensure your registration number and names match the B.Tech (Technology) list.'; return; }
+    
+    // Check if already voted - but skip this check for Promise Chisunkha
+    if(!isPromiseChisunkha(reg) && localStorage.getItem(votedKey(reg))){ 
+      err.textContent = 'This registration number has already voted.'; 
+      return; 
+    }
+
+    // store temporary account in localStorage as demo (keyed by username)
+    const acct = {reg:reg, first:fn, surname:snm, contact:contact};
+    localStorage.setItem(`btech_account_${user}`, JSON.stringify({...acct, pass:pass}));
+    
+    // Log registration
+    addLogEntry('info', `Student registered: ${fn} ${snm} (${reg})`, user);
+    
+    // auto-fill welcome
+    $('welcomeStudent').style.display = 'block';
+    $('welcomeStudent').textContent = `Congratulations ${fn} ${snm}! Verified as ${match.sn}`;
+    
+    // Special message for Promise
+    if(isPromiseChisunkha(reg)) {
+      $('welcomeStudent').textContent += ` (Admin - Can vote multiple times for testing)`;
+    }
+    
+    // toggle to login
+    $('studentRegister').style.display = 'none';
+    $('studentLogin').style.display = 'block';
+    $('stuLoginUser').value = user;
+  }
+
+  // toggle to login
+  if(e.target && e.target.id === 'gotoStuLogin'){
+    $('studentRegister').style.display = 'none';
+    $('studentLogin').style.display = 'block';
+  }
+  // back to register
+  if(e.target && e.target.id === 'backToRegister'){
+    $('studentRegister').style.display = 'block';
+    $('studentLogin').style.display = 'none';
+  }
+});
+
+/* show/hide pass */
+$('showStuPass')?.addEventListener('change', ()=> {
+  const t = $('showStuPass').checked ? 'text':'password';
+  $('stuPass').type = t; $('stuConfirm').type = t;
+});
+$('showStuLogin')?.addEventListener('change', ()=> $('stuLoginPass').type = $('showStuLogin').checked ? 'text' : 'password' );
+
+/* student login to vote */
+$('btnStuLogin')?.addEventListener('click', ()=> {
+  const user = $('stuLoginUser').value.trim();
+  const pass = $('stuLoginPass').value;
+  const err = $('studentError');
+  err.textContent = '';
+  const accRaw = localStorage.getItem(`btech_account_${user}`);
+  if(!accRaw){ err.textContent = 'Account not found. Please register first.'; return; }
+  const acc = JSON.parse(accRaw);
+  if(acc.pass !== pass){ err.textContent = 'Wrong password.'; return; }
+  // final verification: check whitelist for this reg
+  const match = BTECH_LIST.find(x => x.sn === acc.reg && x.surname === toupper(acc.surname) && x.first === toupper(acc.first));
+  if(!match){ err.textContent = 'Whitelist verification failed. Contact admin.'; return; }
+  
+  // Check voted - but skip for Promise Chisunkha
+  if(!isPromiseChisunkha(acc.reg) && localStorage.getItem(votedKey(acc.reg))){ 
+    err.textContent = 'This registration has already voted.'; 
+    return; 
+  }
+  
+  // pass — set currentStudent and go to vote
+  currentStudent = {sn:acc.reg, first:acc.first, surname:acc.surname, username:user};
+  $('voterInfo').textContent = `Voting as ${acc.first} ${acc.surname} — ${acc.reg}`;
+  
+  // Special message for Promise
+  if(isPromiseChisunkha(acc.reg)) {
+    $('voterInfo').textContent += ` (Admin - Can vote multiple times)`;
+  }
+  
+  // Log login
+  addLogEntry('info', `Student logged in: ${acc.first} ${acc.surname}`, user);
+  
+  goTo('voteSlide');
+});
+
+/* logout student */
+function logoutStudent(){
+  if(currentStudent) {
+    addLogEntry('info', `Student logged out: ${currentStudent.first} ${currentStudent.surname}`, currentStudent.username);
+  }
+  currentStudent = null;
+  goTo('studentEntry');
+}
+
+/* review vote (new function) */
+$('btnReviewVote').addEventListener('click', ()=> {
+  if(!currentStudent){ alert('Please login first.'); goTo('studentEntry'); return; }
+  
+  // collect choices
+  const choices = {
+    admin: $('opt_admin').value,
+    early: $('opt_early').value,
+    late: $('opt_late').value,
+    waka: $('opt_waka').value,
+    provider: $('opt_provider').value,
+    artist: $('opt_artist').value,
+    sticker: $('opt_sticker').value
+  };
+  
+  // Store choices for confirmation
+  currentVoteChoices = choices;
+  
+  // Display voter info
+  $('confirmVoterInfo').textContent = `Voting as ${currentStudent.first} ${currentStudent.surname} — ${currentStudent.sn}`;
+  
+  // Special message for Promise
+  if(isPromiseChisunkha(currentStudent.sn)) {
+    $('confirmVoterInfo').textContent += ` (Admin - Can vote multiple times)`;
+  }
+  
+  // Build vote summary
+  const summary = $('voteSummary');
+  summary.innerHTML = '';
+  
+  const titleMap = {
+    admin:'Best Admin',
+    early:'Early Student',
+    late:'Late Sleeping Student',
+    waka:'WAKUMASTAND of the Year',
+    provider:'Best Information Provider',
+    artist:'Best Artist of the Year',
+    sticker:"Best Stickers Provider"
+  };
+  
+  Object.keys(choices).forEach(key => {
+    const div = document.createElement('div');
+    div.className = 'vote-summary-item';
+    div.innerHTML = `<span><strong>${titleMap[key]}:</strong></span><span>${choices[key]}</span>`;
+    summary.appendChild(div);
+  });
+  
+  goTo('confirmVote');
+});
+
+/* back to edit vote */
+$('btnBackToEdit').addEventListener('click', () => goTo('voteSlide'));
+
+/* final vote submission */
+$('btnFinalSubmit').addEventListener('click', ()=> {
+  if(votingPaused){ alert('Voting is currently paused. Contact admin.'); return; }
+  if(!currentStudent || !currentVoteChoices){ alert('Vote data missing. Please try again.'); goTo('voteSlide'); return; }
+  
+  // tally each
+  Object.keys(currentVoteChoices).forEach(k => {
+    const key = tallyKey(k);
+    const obj = JSON.parse(localStorage.getItem(key) || '{}');
+    obj[currentVoteChoices[k]] = (obj[currentVoteChoices[k]]||0) + 1;
+    localStorage.setItem(key, JSON.stringify(obj));
+  });
+  
+  // Get vote sequence number before marking as voted
+  const voteSequence = getVoteSequenceNumber();
+  
+  // mark voted - but don't prevent Promise from voting again
+  if(!isPromiseChisunkha(currentStudent.sn)) {
+    localStorage.setItem(votedKey(currentStudent.sn), JSON.stringify({
+      sn: currentStudent.sn,
+      name: `${currentStudent.first} ${currentStudent.surname}`,
+      username: currentStudent.username,
+      time: new Date().toISOString(),
+      choices: currentVoteChoices,
+      sequence: voteSequence
+    }));
+  }
+  
+  // Log the vote
+  addLogEntry('success', `Vote submitted: ${currentStudent.first} ${currentStudent.surname} (Vote #${voteSequence})`, currentStudent.username);
+  
+  // Generate receipt
+  generateReceipt(voteSequence);
+  
+  // show confirmation
+  $('afterVoteMsg').textContent = `${currentStudent.first} ${currentStudent.surname} — Malawi University of Business and Applied Sciences (vote recorded)`;
+  
+  // Special message for Promise
+  if(isPromiseChisunkha(currentStudent.sn)) {
+    $('afterVoteMsg').textContent += ` - You can vote again for testing purposes`;
+  }
+  
+  goTo('afterVote');
+});
+
+/* generate receipt */
+function generateReceipt(voteSequence) {
+  // Set receipt details
+  $('receiptName').textContent = `${currentStudent.first} ${currentStudent.surname}`;
+  $('receiptStudentNo').textContent = currentStudent.sn;
+  $('receiptDateTime').textContent = new Date().toLocaleString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit'
+  });
+  
+  // Set vote number
+  $('voteNumber').textContent = `Vote #${voteSequence}`;
+  
+  // Add voting choices to receipt
+  const receiptVotes = $('receiptVotes');
+  receiptVotes.innerHTML = '';
+  
+  const titleMap = {
+    admin:'Best Admin',
+    early:'Early Student',
+    late:'Late Sleeping Student',
+    waka:'WAKUMASTAND of the Year',
+    provider:'Best Information Provider',
+    artist:'Best Artist of the Year',
+    sticker:"Best Stickers Provider"
+  };
+  
+  Object.keys(currentVoteChoices).forEach(key => {
+    const row = document.createElement('div');
+    row.className = 'receipt-row';
+    row.innerHTML = `
+      <span class="receipt-label">${titleMap[key]}:</span>
+      <span class="receipt-value">${currentVoteChoices[key]}</span>
+    `;
+    receiptVotes.appendChild(row);
+  });
+}
+
+/* ------------------------
+   Admin login + dashboard
+   ------------------------ */
+$('btnAdminLogin').addEventListener('click', ()=> {
+  const reg = $('adminReg').value.trim();
+  const pass = $('adminPass').value;
+  const err = $('adminError');
+  err.textContent = '';
+  // check if reg is one of the admin reg numbers
+  const admin = ADMIN_ACCOUNTS.find(a => a.sn === reg);
+  if(!admin){ err.textContent = 'Access denied (unknown admin reg.)'; return; }
+  if(pass !== ADMIN_PASSWORD){ err.textContent = 'Wrong admin password'; return; }
+  // generate an admin data code (for demonstration) and store in session
+  const adminCode = `ADM-${reg}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
+  sessionStorage.setItem('admin_code', adminCode);
+  $('adminDataCode').value = adminCode;
+  // set pause flag from localStorage
+  votingPaused = (localStorage.getItem('btech_paused') === 'true');
+  $('btnPause').style.display = votingPaused ? 'none' : 'inline-block';
+  $('btnResume').style.display = votingPaused ? 'inline-block' : 'none';
+  
+  // Log admin login
+  addLogEntry('info', `Admin logged in: ${admin.name}`, admin.sn);
+  
+  renderAdminDashboard();
+  goTo('adminDash');
+});
+
+/* admin actions */
+$('btnPause').addEventListener('click', ()=> {
+  localStorage.setItem('btech_paused','true');
+  votingPaused = true;
+  $('btnPause').style.display = 'none';
+  $('btnResume').style.display = 'inline-block';
+  
+  // Log pause action
+  addLogEntry('warning', 'Voting system PAUSED by admin');
+  
+  alert('Voting paused — students cannot submit votes until resumed.');
+});
+$('btnResume').addEventListener('click', ()=> {
+  localStorage.setItem('btech_paused','false');
+  votingPaused = false;
+  $('btnPause').style.display = 'inline-block';
+  $('btnResume').style.display = 'none';
+  
+  // Log resume action
+  addLogEntry('success', 'Voting system RESUMED by admin');
+  
+  alert('Voting resumed.');
+});
+$('btnRefresh').addEventListener('click', () => {
+  addLogEntry('info', 'Admin refreshed dashboard data');
+  renderAdminDashboard();
+});
+$('btnExport').addEventListener('click', () => {
+  addLogEntry('info', 'Admin exported voting data');
+  exportResults();
+});
+$('btnAdminSlip').addEventListener('click', () => {
+  addLogEntry('info', 'Admin downloaded admin slip');
+  downloadAdminSlip();
+});
+$('btnViewAllResults').addEventListener('click', () => {
+  addLogEntry('info', 'Admin viewed all results');
+  goTo('adminAllResults');
+});
+$('btnViewWinners').addEventListener('click', () => {
+  addLogEntry('info', 'Admin viewed winners only');
+  goTo('adminWinners');
+});
+$('btnViewLog').addEventListener('click', () => {
+  addLogEntry('info', 'Admin viewed system log');
+  goTo('adminLog');
+});
+$('btnExportFromResults').addEventListener('click', () => {
+  addLogEntry('info', 'Admin exported results from results view');
+  exportResults();
+});
+$('btnExportWinners').addEventListener('click', () => {
+  addLogEntry('info', 'Admin exported winners data');
+  exportWinners();
+});
+$('btnExportLog').addEventListener('click', () => {
+  addLogEntry('info', 'Admin exported system log');
+  exportLog();
+});
+$('btnClearLog').addEventListener('click', () => {
+  if(confirm('Are you sure you want to clear the entire system log? This action cannot be undone.')) {
+    clearLog();
+    addLogEntry('warning', 'System log cleared by admin');
+    renderLog();
+    alert('System log cleared.');
+  }
+});
+
+/* ------------------------
+   Admin render functions
+   ------------------------ */
+function readTallies(){
+  const data = {};
+  allFields.forEach(f => {
+    data[f] = JSON.parse(localStorage.getItem(tallyKey(f)) || '{}');
+  });
+  return data;
+}
+
+function renderAdminDashboard(){
+  // Update voting progress
+  const votersJsonKeys = Object.keys(localStorage).filter(k => k.startsWith('btech_voted_'));
+  const voters = votersJsonKeys.map(k => JSON.parse(localStorage.getItem(k)));
+  const totalStudents = BTECH_LIST.length;
+  const votedCount = voters.length;
+  const progressPercent = totalStudents ? Math.round((votedCount * 100) / totalStudents) : 0;
+  
+  $('progressText').textContent = `${votedCount}/${totalStudents} (${progressPercent}%)`;
+  $('progressBar').style.width = `${progressPercent}%`;
+
+  // voters list
+  const votersWrap = $('votersWrap');
+  votersWrap.innerHTML = '';
+  if(voters.length === 0){
+    votersWrap.innerHTML = '<div class="muted">No votes recorded yet.</div>';
+  } else {
+    const ul = document.createElement('div');
+    voters.sort((a,b)=> new Date(b.time) - new Date(a.time)).forEach(v => {
+      const row = document.createElement('div');
+      row.style.padding = '6px 4px';
+      row.style.borderBottom = '1px solid #f0f0f0';
+      const sequenceText = v.sequence ? ` (Vote #${v.sequence})` : '';
+      row.innerHTML = `<strong>${v.name}</strong><div class="muted">Reg: ${v.sn}${sequenceText} — ${new Date(v.time).toLocaleString()}</div>`;
+      ul.appendChild(row);
+    });
+    votersWrap.appendChild(ul);
+  }
+}
+
+function renderAdminAllResults(){
+  // tallies
+  const data = readTallies();
+  // build HTML
+  const wrap = document.createElement('div');
+  wrap.className = 'results-grid';
+  
+  allFields.forEach(field => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    
+    const titleMap = {
+      admin:'Best Admin',
+      early:'Early Student',
+      late:'Late Sleeping Student',
+      waka:'WAKUMASTAND of the Year',
+      provider:'Best Information Provider',
+      artist:'Best Artist of the Year',
+      sticker:"Best Stickers Provider"
+    };
+    
+    const h = document.createElement('h4');
+    h.textContent = titleMap[field] || field;
+    card.appendChild(h);
+    
+    const counts = data[field];
+    const total = Object.values(counts).reduce((a,b)=>a+(b||0),0);
+    // sort candidates by votes desc
+    const sortedCandidates = Object.keys(counts).sort((a,b)=> (counts[b]||0) - (counts[a]||0) );
+    const maxVotes = sortedCandidates.length > 0 ? counts[sortedCandidates[0]] : 0;
+    
+    // Mark winner card
+    if(total > 0) {
+      card.classList.add('winner');
+    }
+    
+    sortedCandidates.forEach(name => {
+      const row = document.createElement('div');
+      row.className = 'candidate-row';
+      
+      const pct = total ? Math.round((counts[name]*10000/total))/100 : 0;
+      // Determine if this candidate is the winner (has max votes)
+      const isWinner = counts[name] === maxVotes && maxVotes > 0;
+      
+      // Calculate margin for losers
+      let statusHTML = '';
+      if (isWinner) {
+        statusHTML = '<span class="winner-badge">✅ Winner</span>';
+      } else {
+        const margin = ((maxVotes - counts[name]) / total).toFixed(2);
+        // Add rocket emojis based on margin (more rockets for larger margins)
+        const rockets = Math.ceil(margin * 20); // Scale factor to get reasonable number of rockets
+        statusHTML = `<span class="rocket-indicator">🚀 ×${margin} ${'🚀'.repeat(Math.min(rockets, 3))}</span>`;
+      }
+      
+      row.innerHTML = `
+        <div class="candidate-name">${name}</div>
+        <div class="candidate-votes">
+          ${counts[name]} votes (${pct}%)
+          ${statusHTML}
+        </div>
+      `;
+      
+      // Add vote bar
+      const barContainer = document.createElement('div');
+      barContainer.className = 'vote-bar';
+      const barFill = document.createElement('div');
+      barFill.className = 'vote-fill';
+      if (isWinner) barFill.classList.add('winner');
+      barFill.style.width = `${pct}%`;
+      barContainer.appendChild(barFill);
+      
+      card.appendChild(row);
+      card.appendChild(barContainer);
+    });
+    
+    // if no votes yet - show candidates from select lists to keep layout consistent
+    if(Object.keys(counts).length === 0){
+      // try to infer candidate list from vote form (if available)
+      const sampleSelect = document.querySelector(`#opt_${field}`);
+      if(sampleSelect){
+        Array.from(sampleSelect.options).forEach(opt => {
+          const row = document.createElement('div');
+          row.className = 'candidate-row';
+          row.innerHTML = `
+            <div class="candidate-name">${opt.text}</div>
+            <div class="candidate-votes">0 votes (0%)</div>
+          `;
+          card.appendChild(row);
+          
+          const barContainer = document.createElement('div');
+          barContainer.className = 'vote-bar';
+          const barFill = document.createElement('div');
+          barFill.className = 'vote-fill';
+          barFill.style.width = `0%`;
+          barContainer.appendChild(barFill);
+          card.appendChild(barContainer);
+        });
+      } else {
+        const row = document.createElement('div'); 
+        row.innerHTML = `<div class="muted">No votes yet</div>`; 
+        card.appendChild(row);
+      }
+    }
+    
+    // mark winner (if any)
+    if(total > 0){
+      const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+      const [topName, topCount] = entries[0];
+      const winnersDiv = document.createElement('div');
+      winnersDiv.style.marginTop = '6px';
+      winnersDiv.style.fontWeight = 'bold';
+      winnersDiv.style.color = 'var(--success)';
+      // add winner row with checkmark emoji
+      winnersDiv.innerHTML = `🏆 ${topName}: ${topCount} votes (${Math.round((topCount*10000/total))/100}%)`;
+      card.appendChild(winnersDiv);
+    }
+    
+    wrap.appendChild(card);
+  });
+
+  // replace resultsWrap
+  const allResultsWrap = $('allResultsWrap');
+  allResultsWrap.innerHTML = '';
+  allResultsWrap.appendChild(wrap);
+}
+
+function renderAdminWinners(){
+  // tallies
+  const data = readTallies();
+  // build HTML
+  const wrap = document.createElement('div');
+  wrap.className = 'results-grid';
+  
+  allFields.forEach(field => {
+    const card = document.createElement('div');
+    card.className = 'result-card winner';
+    
+    const titleMap = {
+      admin:'Best Admin',
+      early:'Early Student',
+      late:'Late Sleeping Student',
+      waka:'WAKUMASTAND of the Year',
+      provider:'Best Information Provider',
+      artist:'Best Artist of the Year',
+      sticker:"Best Stickers Provider"
+    };
+    
+    const h = document.createElement('h4');
+    h.textContent = titleMap[field] || field;
+    card.appendChild(h);
+    
+    const counts = data[field];
+    const total = Object.values(counts).reduce((a,b)=>a+(b||0),0);
+    
+    // Only show winner if there are votes
+    if(total > 0) {
+      // sort candidates by votes desc
+      const sortedCandidates = Object.keys(counts).sort((a,b)=> (counts[b]||0) - (counts[a]||0) );
+      const winnerName = sortedCandidates[0];
+      const winnerVotes = counts[winnerName];
+      const winnerPct = Math.round((winnerVotes*10000/total))/100;
+      
+      const winnerDiv = document.createElement('div');
+      winnerDiv.style.textAlign = 'center';
+      winnerDiv.style.padding = '20px 0';
+      
+      winnerDiv.innerHTML = `
+        <div style="font-size:48px; margin-bottom:10px">✅</div>
+        <div style="font-size:24px; font-weight:bold; color:var(--success); margin-bottom:10px">${winnerName}</div>
+        <div style="font-size:18px; color:var(--muted)">${winnerVotes} votes (${winnerPct}%)</div>
+        <div style="margin-top:15px; font-weight:bold; color:var(--primary)">WINNER</div>
+      `;
+      
+      card.appendChild(winnerDiv);
+    } else {
+      const noVotesDiv = document.createElement('div');
+      noVotesDiv.style.textAlign = 'center';
+      noVotesDiv.style.padding = '20px 0';
+      noVotesDiv.innerHTML = `
+        <div style="font-size:24px; color:var(--muted)">No votes yet</div>
+        <div style="margin-top:10px; font-size:14px">Waiting for votes to be cast</div>
+      `;
+      card.appendChild(noVotesDiv);
+    }
+    
+    wrap.appendChild(card);
+  });
+
+  // replace winnersWrap
+  const winnersWrap = $('winnersWrap');
+  winnersWrap.innerHTML = '';
+  winnersWrap.appendChild(wrap);
+}
+
+/* ------------------------
+   Export results JSON
+   ------------------------ */
+function exportResults(){
+  const tallies = readTallies();
+  const voters = Object.keys(localStorage).filter(k=>k.startsWith('btech_voted_')).map(k => JSON.parse(localStorage.getItem(k)));
+  const payload = {tallies, voters, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'btech_preyeros_results.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportWinners(){
+  const tallies = readTallies();
+  const winners = {};
+  
+  allFields.forEach(field => {
+    const counts = tallies[field];
+    const total = Object.values(counts).reduce((a,b)=>a+(b||0),0);
+    
+    if(total > 0) {
+      const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+      winners[field] = {
+        winner: sorted[0][0],
+        votes: sorted[0][1],
+        percentage: Math.round((sorted[0][1]*10000/total))/100
+      };
+    }
+  });
+  
+  const payload = {winners, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'btech_preyeros_winners.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ------------------------
+   Download Admin Slip
+   ------------------------ */
+function downloadAdminSlip(){
+  const tallies = readTallies();
+  const voters = Object.keys(localStorage).filter(k=>k.startsWith('btech_voted_')).map(k => JSON.parse(localStorage.getItem(k)));
+  
+  const titleMap = {
+    admin:'Best Admin',
+    early:'Early Student',
+    late:'Late Sleeping Student',
+    waka:'WAKUMASTAND of the Year',
+    provider:'Best Information Provider',
+    artist:'Best Artist of the Year',
+    sticker:"Best Stickers Provider"
+  };
+  
+  let slipContent = `BTECH PREYEROS VOTING - ADMINISTRATOR SLIP\n`;
+  slipContent += `==============================================\n\n`;
+  slipContent += `Generated on: ${new Date().toLocaleString()}\n`;
+  slipContent += `Total Voters: ${voters.length}\n\n`;
+  slipContent += `RESULTS SUMMARY:\n`;
+  slipContent += `----------------\n\n`;
+  
+  allFields.forEach(field => {
+    slipContent += `${titleMap[field]}:\n`;
+    const counts = tallies[field];
+    const total = Object.values(counts).reduce((a,b)=>a+(b||0),0);
+    
+    // sort by votes desc
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    sorted.forEach(([name, votes]) => {
+      const pct = total ? (votes*100/total).toFixed(2) : '0.00';
+      const isWinner = sorted[0][0] === name && votes > 0;
+      slipContent += `  ${isWinner ? '✅ ' : '🚀 '}${name}: ${votes} votes (${pct}%) ${isWinner ? '- WINNER' : ''}\n`;
+    });
+    slipContent += '\n';
+  });
+  
+  slipContent += `VOTERS LIST:\n`;
+  slipContent += `------------\n`;
+  voters.forEach(v => {
+    slipContent += `  ${v.name} (${v.sn}) - ${new Date(v.time).toLocaleString()}\n`;
+  });
+  
+  const blob = new Blob([slipContent], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); 
+  a.href = url; 
+  a.download = `btech_preyeros_admin_slip_${new Date().toISOString().split('T')[0]}.txt`;
+  document.body.appendChild(a); 
+  a.click(); 
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ------------------------
+   Initialization: wire buttons on slide1
+   ------------------------ */
+document.getElementById('btnStudentRole').addEventListener('click', ()=> {
+  // show student entry slide
+  $('studentRegister').style.display = 'block';
+  $('studentLogin').style.display = 'none';
+});
+document.getElementById('btnAdminRole').addEventListener('click', ()=> {
+  // admin slide already wired
+});
+
+/* goTo utility for inline use */
+function goToSlideName(name){ goTo(name); }
+window.goTo = goTo;
+
+/* quick initial check: if voting paused update admin buttons text */
+(function init(){
+  // Add initial log entry
+  if(getLogEntries().length === 0) {
+    addLogEntry('info', 'Voting system initialized');
+  }
+  
+  if(localStorage.getItem('btech_paused') === 'true') votingPaused = true;
+  // set pause/resume button state
+  if(votingPaused){
+    $('btnPause').style.display = 'none';
+    $('btnResume').style.display = 'inline-block';
+  } else {
+    $('btnPause').style.display = 'inline-block';
+    $('btnResume').style.display = 'none';
+  }
+  // make sure to show the student entry as default when role clicked
+  // no further init required
+})();
+
+</script>
+</body>
+</html>
