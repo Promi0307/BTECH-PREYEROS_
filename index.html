@@ -6,11 +6,9 @@
 <title>BTECH PREYEROS Voting — BTech (Tech) Only</title>
 
 <!-- Firebase JS SDK (modular) - CDN -->
-<!-- Using explicit versions so behavior is stable. -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-  // expose to global window for the page script
   window._firebaseModules = { initializeApp, getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, query, where, orderBy };
 </script>
 
@@ -94,7 +92,6 @@
   .vote-item:last-child{border-bottom:none}
   /* Controls */
   .admin-controls{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0}
-  /* Small responsive adjustments */
   @media (max-width:420px){
     .container{padding:14px}
     .nominees-grid{grid-template-columns:1fr 1fr}
@@ -106,7 +103,7 @@
     <div style="text-align:center;font-weight:900;font-size:18px;margin-bottom:6px;background:linear-gradient(to right, #1a2a6c, #b21f1f); -webkit-background-clip:text; -webkit-text-fill-color:transparent">Malawi University of Business and Applied Sciences</div>
     <img src="logo.jpeg" alt="MUBAS Logo" class="logo">
 
-    <!-- SLIDE 1: SELECT ROLE -->
+    <!-- SLIDE 1 -->
     <section id="slide1" class="slide active">
       <h1>BTECH PREYEROS Voting</h1>
       <p class="muted">Only <strong>Technical Education (Technology) — Honours</strong> students may vote.</p>
@@ -128,7 +125,7 @@
       <div class="footer-credit">Created by Prom Visuals</div>
     </section>
 
-    <!-- SLIDE 2: STUDENT SIGNUP / LOGIN -->
+    <!-- STUDENT -->
     <section id="studentEntry" class="slide">
       <h2>Student — Register or Login</h2>
       <div class="error" id="studentError"></div>
@@ -159,7 +156,7 @@
       <div class="footer-credit">Created by Prom Visuals</div>
     </section>
 
-    <!-- SLIDE 3: VOTING -->
+    <!-- VOTING -->
     <section id="voteSlide" class="slide">
       <h2>Cast Your Vote</h2>
       <div class="error" id="voteError"></div>
@@ -175,7 +172,7 @@
         </div>
       </div>
 
-      <!-- Early Student -->
+      <!-- Early -->
       <div class="voting-category">
         <div class="category-title">Early Student</div>
         <div class="nominees-grid" id="earlyOptions">
@@ -185,7 +182,7 @@
         </div>
       </div>
 
-      <!-- Late Sleeping Student -->
+      <!-- Late -->
       <div class="voting-category">
         <div class="category-title">Late Sleeping Student</div>
         <div class="nominees-grid" id="lateOptions">
@@ -195,7 +192,7 @@
         </div>
       </div>
 
-      <!-- WAKUMASTAND -->
+      <!-- Waka -->
       <div class="voting-category">
         <div class="category-title">WAKUMASTAND of the Year</div>
         <div class="nominees-grid" id="wakaOptions">
@@ -224,7 +221,7 @@
         </div>
       </div>
 
-      <!-- Sticker provider -->
+      <!-- Sticker -->
       <div class="voting-category">
         <div class="category-title">Best Stickers Provider</div>
         <div class="nominees-grid" id="stickerOptions">
@@ -239,14 +236,12 @@
       <div class="footer-credit">Created by Prom Visuals</div>
     </section>
 
-    <!-- SLIDE 4: VOTE CONFIRM -->
+    <!-- CONFIRM -->
     <section id="confirmVote" class="slide">
       <h2>Confirm Your Vote</h2>
       <div class="muted" id="confirmVoterInfo" style="text-align:center;margin-bottom:8px"></div>
       <div class="vote-summary" id="voteSummary"></div>
-
       <div class="warning-box"><strong>⚠️ Warning:</strong> Once submitted, you cannot change your vote.</div>
-
       <div style="display:flex;gap:10px">
         <button id="btnBackToEdit" class="ghost" style="background:#fff;border:1px solid #bee3ff;color:var(--brand)">Go Back to Edit</button>
         <button id="btnFinalSubmit" class="success">Submit Vote</button>
@@ -254,7 +249,7 @@
       <div class="footer-credit">Created by Prom Visuals</div>
     </section>
 
-    <!-- SLIDE 5: AFTER VOTE -->
+    <!-- AFTER VOTE -->
     <section id="afterVote" class="slide">
       <h2 style="color:var(--success)">✅ Thank you — Vote received</h2>
       <p id="afterVoteMsg" class="muted"></p>
@@ -298,7 +293,6 @@
           <button id="btnRefreshLive" class="small primary" style="width:auto;padding:6px 12px">Refresh</button>
         </div>
 
-        <!-- Categories (adminNominees... etc) -->
         <div class="category-section"><div class="category-title">Best Admin</div><div class="nominee-grid" id="adminNominees"></div></div>
         <div class="category-section"><div class="category-title">Early Student</div><div class="nominee-grid" id="earlyNominees"></div></div>
         <div class="category-section"><div class="category-title">Late Sleeping Student</div><div class="nominee-grid" id="lateNominees"></div></div>
@@ -330,7 +324,7 @@
    Firebase config (your config)
    ============================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDecZW0pmv9tcVZmfaZd4fvXOjT4RTvuSg",
@@ -352,20 +346,103 @@ try {
 }
 
 /* ------------------------
-   Data: whitelist (from your file)
+   Full whitelist of BTECH students (eligible voters)
    ------------------------ */
-const BTECH_LIST = [ /* (kept short here for brevity) */
+const BTECH_LIST = [
+  {sn:'202411280015', surname:'CHIGWEMEMBE', first:'JACQUELINE'},
+  {sn:'202400150006', surname:'CHIHANA', first:'ALICE'},
+  {sn:'202414820016', surname:'CHILAMWA', first:'MIRACLE'},
+  {sn:'202401280018', surname:'CHIPANJE', first:'MARTHA'},
+  {sn:'202403500012', surname:'CHITAYA', first:'SILVIA'},
+  {sn:'202400550017', surname:'CHIWOKO', first:'WONGANI'},
+  {sn:'202401080067', surname:'FELEZA', first:'CAROLINE'},
+  {sn:'202400390013', surname:'FRANCISCO', first:'ZAITHWA'},
+  {sn:'202400150013', surname:'FWETA', first:'CATHERINE'},
+  {sn:'202403080033', surname:'JORDAN', first:'SHIRAH'},
+  {sn:'202480340020', surname:'KABANGO', first:'CHIKONDI'},
+  {sn:'202408020008', surname:'KALHAZ', first:'PROMISE'},
   {sn:'202400800017', surname:'KALIKUNDE', first:'WEZZIE'},
+  {sn:'202401280044', surname:'KALIZA', first:'TINYADE'},
+  {sn:'202409520135', surname:'KALONGONDA', first:'MARGRET'},
+  {sn:'202314740029', surname:'KALULU', first:'LOVENESS'},
+  {sn:'202400050014', surname:'KANTHALO', first:'CAROLINE'},
+  {sn:'202412630022', surname:'KANYAKATIRA', first:'HARRIET'},
+  {sn:'202414930036', surname:'KAONGA', first:'QUEEN'},
+  {sn:'202410140044', surname:'KAZEMBE', first:'AISHA'},
+  {sn:'202413800017', surname:'KHAULA', first:'FAITH'},
+  {sn:'202412800017', surname:'KONDOWE', first:'CARLO'},
+  {sn:'202414930049', surname:'KUMWENDA', first:'MERCY'},
+  {sn:'202480800089', surname:'LEKODI', first:'ELIZA'},
+  {sn:'202417560083', surname:'MAGALASI', first:'MARY'},
+  {sn:'202480500063', surname:'MALIMWE', first:'PEMPHERO'},
+  {sn:'202400960070', surname:'MAPALA', first:'FATSANI'},
+  {sn:'202400960074', surname:'MATHEWS', first:'EMILY'},
+  {sn:'202413330050', surname:'MATOLA', first:'DESIRE'},
+  {sn:'202411540297', surname:"M'BWANA", first:'GLORY'},
+  {sn:'202401160012', surname:'MILANZI', first:'REHANA'},
+  {sn:'2024410514330', surname:'MKANDAWIRE', first:'VICTORIA'},
+  {sn:'202416520062', surname:'MKUNYULI', first:'SHARON'},
+  {sn:'202401170030', surname:'MPATA', first:'LUMBANI'},
+  {sn:'202406150079', surname:'MPHALABUNGU', first:'VICTORIA'},
+  {sn:'202400170082', surname:'MWAFULIRWA', first:'UCHIZI'},
+  {sn:'202480970049', surname:'NDIPO', first:'COMFORT'},
+  {sn:'202400940148', surname:'NKHOMA', first:'MICHELLE'},
+  {sn:'202400380143', surname:'NKHWANGWA', first:'VITUMBIKO'},
+  {sn:'202411610049', surname:'NYIRENDA', first:'VICTORIA'},
+  {sn:'202415360044', surname:'PATSON', first:'DORIS'},
+  {sn:'202400930118', surname:'PORTIPHER', first:'DOREEN'},
+  {sn:'202407990049', surname:'SEKEYAH', first:'PEMPHERO'},
+  {sn:'202401160018', surname:'SINGARA', first:'AMEERAH'},
+  {sn:'202460010110', surname:'SINGINI', first:'WEZZIE'},
+  {sn:'202401390075', surname:'STIMA', first:'SHERIFFA'},
+  {sn:'202400890037', surname:'ZACHARIA', first:'MONICA'},
+  {sn:'202414860062', surname:'ZINGA', first:'FLORENCE'},
+  {sn:'202415010040', surname:'ALICK', first:'BRIGHT'},
+  {sn:'202412690048', surname:'ASSAN', first:'FAVOUR'},
+  {sn:'202400610031', surname:'AYUBU', first:'YUSUF'},
+  {sn:'202400240077', surname:'BANDA', first:'DENNIS'},
+  {sn:'202483970142', surname:'BANDA', first:'STEPHANO'},
+  {sn:'202400650062', surname:'BATSON', first:'NOEL'},
+  {sn:'202400520057', surname:'BIDERI', first:'ELISSA'},
+  {sn:'202401440002', surname:'BONGA', first:'MZATI'},
   {sn:'202409940091', surname:'CHISUNKHA', first:'PROMISE'},
-  // ... full list already in your copy — keep as original in your app
+  {sn:'202400100026', surname:'DZILEKWA', first:'DANIEL'},
+  {sn:'202482920041', surname:'FERGUS', first:'GRIFFIN'},
+  {sn:'202400520075', surname:'GONDWE', first:'DAVID'},
+  {sn:'202400970070', surname:'GUJAN', first:'ENOCK'},
+  {sn:'202400690107', surname:'JOHN', first:'EDWARD'},
+  {sn:'202413140087', surname:'KACHIGAMBA', first:'DAVIE'},
+  {sn:'202400220069', surname:'KALEMBERA', first:'KELVIN'},
+  {sn:'202400170153', surname:'KALUMBA', first:'MATHEWS'},
+  {sn:'202416070032', surname:'KALUMBU', first:'PRINCE'},
+  {sn:'202400640085', surname:'KARONGA', first:'KENNETH'},
+  {sn:'202406240144', surname:'KAUNDA', first:'UNITY'},
+  {sn:'202401000128', surname:'KAYINGA', first:'WACHISA'},
+  {sn:'202407910213', surname:'KHOLA', first:'JONATHAN'},
+  {sn:'202400190100', surname:'KUWERUZA', first:'JAPHET'},
+  {sn:'202403020062', surname:'LISIMBA', first:'GABRIEL'},
+  {sn:'202400130176', surname:'MAKAWA', first:'CHARLES'},
+  {sn:'202482920057', surname:'MALITHANO', first:'STANLEY'},
+  {sn:'202486680098', surname:'MANDA', first:'ABELL'},
+  {sn:'202480990081', surname:'MBAYA', first:'DANIEL'},
+  {sn:'202406720075', surname:'MICHENGA', first:'CLEMENT'},
+  {sn:'2024410514345', surname:'MMANGISA', first:'MAHARA'},
+  {sn:'202480050272', surname:'MNDALA', first:'JOSEPH'},
+  {sn:'202411380382', surname:'MOSES', first:'FESTUS'},
+  {sn:'202400120121', surname:'MWALE', first:'EDWARD'},
+  {sn:'202400040254', surname:'PELEKEZANI', first:'YANKHO'},
+  {sn:'202400980123', surname:'PHOKOSO', first:'HEPEL'},
+  {sn:'202415290118', surname:'SEMU', first:'PATRICK'},
+  {sn:'202412640352', surname:'WALUSA', first:'YANKHO'},
+  {sn:'202410580412', surname:'ZUNDE', first:'GIFT'}
 ];
 
-// for simplicity, map of sn -> uppercased names
+/* convenience map for quick lookup */
 const whitelistMap = {};
 BTECH_LIST.forEach(x => whitelistMap[x.sn] = { first: x.first, surname: x.surname });
 
 /* ------------------------
-   Constants & Nominees (from your HTML)
+   Voting & helpers
    ------------------------ */
 const votedKey = sn => `btech_voted_${sn}`;
 const allFields = ['admin','early','late','waka','provider','artist','sticker'];
@@ -379,7 +456,7 @@ const NOMINEES = {
   sticker: ['Victoria Maphalabungu', 'Wezzie', 'Victoria Jimmy']
 };
 
-// Admins allowed (only these can see live dashboard)
+// only Promise and Wezzie (as requested)
 const ADMIN_ACCOUNTS = [
   {reg: '202409940091', password: 'admin123', name: 'Promise Chisunkha'},
   {reg: '202400800017', password: 'admin123', name: 'Wezzie Kalikunde'}
@@ -387,34 +464,30 @@ const ADMIN_ACCOUNTS = [
 
 let currentStudent = null;
 let currentVoteChoices = null;
-let votingPaused = false;
-let recentVotes = []; // local cache of recent votes
+let votingPaused = (localStorage.getItem('btech_paused') === 'true');
+let recentVotes = JSON.parse(localStorage.getItem('btech_recent_votes') || '[]');
 
 /* ------------------------
-   Simple slide navigation (works)
+   Navigation
    ------------------------ */
 function goTo(id){
   document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
   if(el) el.classList.add('active');
-
-  // on admin dash show live
   if(id === 'adminDash' && db) setupRealtimeForAdmin();
 }
 window.goTo = goTo;
 
 /* ------------------------
-   Voting selection UI
+   UI helpers
    ------------------------ */
 function initializeHorizontalVoting() {
   document.querySelectorAll('.nominee-option').forEach(option => {
-    option.addEventListener('click', function(e) {
+    option.addEventListener('click', function() {
       const radio = this.querySelector('input[type="radio"]');
       if (radio) {
         const categoryName = radio.name;
-        document.querySelectorAll(`input[name="${categoryName}"]`).forEach(r => {
-          r.parentElement.classList.remove('selected');
-        });
+        document.querySelectorAll(`input[name="${categoryName}"]`).forEach(r => r.parentElement.classList.remove('selected'));
         radio.checked = true;
         this.classList.add('selected');
       }
@@ -423,7 +496,7 @@ function initializeHorizontalVoting() {
 }
 
 /* ------------------------
-   Student Register/Login (local)
+   Student register/login (local + Firestore check)
    ------------------------ */
 document.getElementById('btnStudentRole').addEventListener('click', ()=> {
   document.getElementById('studentRegister').style.display = 'block';
@@ -431,7 +504,7 @@ document.getElementById('btnStudentRole').addEventListener('click', ()=> {
   goTo('studentEntry');
 });
 
-document.addEventListener('click', function(e){
+document.addEventListener('click', async function(e){
   if(e.target && e.target.id === 'btnStuRegister'){
     const fn = document.getElementById('firstName').value.trim();
     const snm = document.getElementById('surname').value.trim();
@@ -440,26 +513,18 @@ document.addEventListener('click', function(e){
     const contact = document.getElementById('stuContact').value.trim();
     const pass = document.getElementById('stuPass').value;
     const conf = document.getElementById('stuConfirm').value;
-    const err = document.getElementById('studentError');
-    err.textContent = '';
+    const err = document.getElementById('studentError'); err.textContent='';
 
-    if(!fn || !snm || !reg || !user || !contact || !pass || !conf){
-      err.textContent = 'All fields are required.'; return;
-    }
-    if(pass.length < 6){ err.textContent = 'Password must be >= 6 chars.'; return; }
-    if(pass !== conf){ err.textContent = 'Passwords do not match.'; return; }
+    if(!fn || !snm || !reg || !user || !contact || !pass || !conf){ err.textContent='All fields are required.'; return; }
+    if(pass.length < 6){ err.textContent='Password must be >= 6 chars.'; return; }
+    if(pass !== conf){ err.textContent='Passwords do not match.'; return; }
 
-    // whitelist check (if not present, still allow — but we warn)
     const mapped = whitelistMap[reg];
     if(!mapped || mapped.first !== fn.toUpperCase() || mapped.surname !== snm.toUpperCase()){
       err.textContent = 'Verification failed. Ensure your registration and names match the B.Tech list.'; return;
     }
 
-    // check Firestore existing vote (if connected)
-    if(db){
-      // we will check when logging in; here just store local account
-    }
-
+    // Save a local account (simple)
     const acct = {reg:reg, first:fn, surname:snm, contact:contact, pass:pass};
     localStorage.setItem(`btech_account_${user}`, JSON.stringify(acct));
     document.getElementById('welcomeStudent').style.display = 'block';
@@ -469,14 +534,8 @@ document.addEventListener('click', function(e){
     document.getElementById('stuLoginUser').value = user;
   }
 
-  if(e.target && e.target.id === 'gotoStuLogin'){
-    document.getElementById('studentRegister').style.display = 'none';
-    document.getElementById('studentLogin').style.display = 'block';
-  }
-  if(e.target && e.target.id === 'backToRegister'){
-    document.getElementById('studentRegister').style.display = 'block';
-    document.getElementById('studentLogin').style.display = 'none';
-  }
+  if(e.target && e.target.id === 'gotoStuLogin'){ document.getElementById('studentRegister').style.display='none'; document.getElementById('studentLogin').style.display='block'; }
+  if(e.target && e.target.id === 'backToRegister'){ document.getElementById('studentRegister').style.display='block'; document.getElementById('studentLogin').style.display='none'; }
 });
 
 document.getElementById('showStuPass')?.addEventListener('change', ()=> {
@@ -490,20 +549,21 @@ document.getElementById('showStuLogin')?.addEventListener('change', ()=> {
 document.getElementById('btnStuLogin')?.addEventListener('click', async ()=> {
   const user = document.getElementById('stuLoginUser').value.trim();
   const pass = document.getElementById('stuLoginPass').value;
-  const err = document.getElementById('studentError');
-  err.textContent = '';
+  const err = document.getElementById('studentError'); err.textContent='';
 
   const accRaw = localStorage.getItem(`btech_account_${user}`);
   if(!accRaw){ err.textContent = 'Account not found. Please register first.'; return; }
   const acc = JSON.parse(accRaw);
   if(acc.pass !== pass){ err.textContent = 'Wrong password.'; return; }
 
-  // check if this reg has already voted in Firestore
+  // Check Firestore for existing vote (if enabled)
   if(db){
-    const voteDocRef = doc(db, 'votes', acc.reg);
-    const snap = await getDoc(voteDocRef);
-    if(snap.exists()){
-      err.textContent = 'This registration has already voted.'; return;
+    try{
+      const voteDocRef = doc(db, 'votes', acc.reg);
+      const snap = await getDoc(voteDocRef);
+      if(snap.exists()){ err.textContent = 'This registration has already voted.'; return; }
+    }catch(err){
+      console.warn('Firestore check failed', err);
     }
   } else {
     if(localStorage.getItem(votedKey(acc.reg))){ err.textContent = 'This registration has already voted.'; return; }
@@ -514,43 +574,26 @@ document.getElementById('btnStuLogin')?.addEventListener('click', async ()=> {
   goTo('voteSlide');
 });
 
-function logoutStudent(){
-  currentStudent = null;
-  goTo('studentEntry');
-}
+function logoutStudent(){ currentStudent = null; goTo('studentEntry'); }
 
 /* ------------------------
-   Voting process
+   Voting flow
    ------------------------ */
 initializeHorizontalVoting();
 
 document.getElementById('btnReviewVote').addEventListener('click', ()=> {
   if(!currentStudent){ alert('Please login first.'); goTo('studentEntry'); return; }
-  const choices = {};
-  let allSelected = true;
-  const missingCategories = [];
-
+  const choices = {}; let allSelected = true; const missing = [];
   allFields.forEach(field => {
-    const selected = document.querySelector(`input[name="${field}"]:checked`);
-    if(selected) choices[field] = selected.value;
-    else { allSelected = false; missingCategories.push(field); }
+    const s = document.querySelector(`input[name="${field}"]:checked`);
+    if(s) choices[field]=s.value; else { allSelected=false; missing.push(field); }
   });
-
-  if(!allSelected){
-    const map = {admin:'Best Admin', early:'Early Student', late:'Late Sleeping Student', waka:'WAKUMASTAND', provider:'Information Provider', artist:'Best Artist', sticker:'Stickers Provider'};
-    alert('Please select: ' + missingCategories.map(c=>map[c]).join(', '));
-    return;
-  }
-
+  if(!allSelected){ const map={admin:'Best Admin',early:'Early Student',late:'Late Sleeping Student',waka:'WAKUMASTAND',provider:'Information Provider',artist:'Best Artist',sticker:'Stickers Provider'}; alert('Please select: ' + missing.map(c=>map[c]).join(', ')); return; }
   currentVoteChoices = choices;
   document.getElementById('confirmVoterInfo').textContent = `Voting as ${currentStudent.first} ${currentStudent.surname} — ${currentStudent.sn}`;
-  const summary = document.getElementById('voteSummary'); summary.innerHTML = '';
-  const titleMap = {admin:'Best Admin', early:'Early Student', late:'Late Sleeping Student', waka:'WAKUMASTAND of the Year', provider:'Best Information Provider', artist:'Best Artist of the Year', sticker:"Best Stickers Provider"};
-  Object.keys(choices).forEach(k => {
-    const div = document.createElement('div'); div.className='vote-summary-item';
-    div.innerHTML = `<span><strong>${titleMap[k]}:</strong></span><span>${choices[k]}</span>`;
-    summary.appendChild(div);
-  });
+  const summary = document.getElementById('voteSummary'); summary.innerHTML='';
+  const titleMap={admin:'Best Admin',early:'Early Student',late:'Late Sleeping Student',waka:'WAKUMASTAND of the Year',provider:'Best Information Provider',artist:'Best Artist of the Year',sticker:"Best Stickers Provider"};
+  Object.keys(choices).forEach(k=>{ const div=document.createElement('div'); div.className='vote-summary-item'; div.innerHTML=`<span><strong>${titleMap[k]}:</strong></span><span>${choices[k]}</span>`; summary.appendChild(div); });
   goTo('confirmVote');
 });
 
@@ -558,31 +601,22 @@ document.getElementById('btnBackToEdit').addEventListener('click', ()=> goTo('vo
 
 document.getElementById('btnFinalSubmit').addEventListener('click', async ()=> {
   if(!currentStudent || !currentVoteChoices){ alert('Vote data missing.'); goTo('voteSlide'); return; }
-  // paused check
   if(votingPaused){ alert('Voting paused.'); return; }
 
-  const votePayload = {
-    voterSN: currentStudent.sn,
-    voterName: `${currentStudent.first} ${currentStudent.surname}`,
-    choices: currentVoteChoices,
-    time: new Date().toISOString()
-  };
+  const payload = { voterSN: currentStudent.sn, voterName: `${currentStudent.first} ${currentStudent.surname}`, choices: currentVoteChoices, time: new Date().toISOString() };
 
-  // write to Firestore if available (use reg as doc id to prevent duplicates)
   if(db){
     try{
-      await setDoc(doc(db, 'votes', currentStudent.sn), votePayload);
-      // success
-      addRecentVote(votePayload.voterName, votePayload.time);
-    } catch(err){
-      console.error('Firestore write failed',err);
+      await setDoc(doc(db, 'votes', currentStudent.sn), payload);
+      addRecentVote(payload.voterName, payload.time);
+    }catch(err){
+      console.error('Firestore write failed', err);
       alert('Failed to submit vote (Firestore). Check console.');
       return;
     }
   } else {
-    // fallback to localStorage (for offline/test)
-    localStorage.setItem(votedKey(currentStudent.sn), JSON.stringify(votePayload));
-    addRecentVote(votePayload.voterName, votePayload.time);
+    localStorage.setItem(votedKey(currentStudent.sn), JSON.stringify({name: payload.voterName, sn: payload.voterSN, time: payload.time, choices: payload.choices}));
+    addRecentVote(payload.voterName, payload.time);
   }
 
   document.getElementById('afterVoteMsg').textContent = `${currentStudent.first} ${currentStudent.surname} — vote recorded`;
@@ -590,29 +624,26 @@ document.getElementById('btnFinalSubmit').addEventListener('click', async ()=> {
 });
 
 /* ------------------------
-   Recent votes + notification (local UI)
+   Recent votes notif
    ------------------------ */
 function addRecentVote(voterName, time){
-  recentVotes.unshift({voter:voterName, timestamp: time || new Date().toISOString()});
+  recentVotes.unshift({voter:voterName, timestamp: time||new Date().toISOString()});
   if(recentVotes.length>20) recentVotes = recentVotes.slice(0,20);
-  if(db) {
-    // recent votes will be driven by Firestore snapshot
-  } else {
-    localStorage.setItem('btech_recent_votes', JSON.stringify(recentVotes));
-  }
+  if(!db) localStorage.setItem('btech_recent_votes', JSON.stringify(recentVotes));
   showVoteNotification(voterName);
 }
 
 function showVoteNotification(voterName){
   const n = document.getElementById('voteNotification');
   const t = document.getElementById('voteNotificationText');
+  if(!n || !t) return;
   t.textContent = `${voterName} just cast their vote!`;
   n.classList.add('show');
   setTimeout(()=> n.classList.remove('show'), 4500);
 }
 
 /* ------------------------
-   ADMIN LOGIN & LIVE DATA
+   Admin login & realtime
    ------------------------ */
 document.getElementById('btnAdminRole').addEventListener('click', ()=> goTo('adminSlide'));
 document.getElementById('showAdminPass')?.addEventListener('change', ()=> {
@@ -624,46 +655,32 @@ document.getElementById('btnAdminLogin').addEventListener('click', ()=> {
   const pass = document.getElementById('adminPass').value;
   const err = document.getElementById('adminError'); err.textContent='';
   const admin = ADMIN_ACCOUNTS.find(a=>a.reg===reg && a.password===pass);
-  if(!admin){ err.textContent = 'Invalid admin credentials.'; return; }
-  // show admin dash
+  if(!admin){ err.textContent='Invalid admin credentials.'; return; }
+  // show dashboard
   goTo('adminDash');
-  // setup live if DB available
-  if(db) setupRealtimeForAdmin();
+  if(db) setupRealtimeForAdmin(); else renderTalliesFromLocal();
 });
 
-document.getElementById('btnPause').addEventListener('click', ()=>{
-  votingPaused = true; document.getElementById('btnPause').style.display='none'; document.getElementById('btnResume').style.display='inline-block';
-  // store flag locally and in Firestore (optional)
-  localStorage.setItem('btech_paused','true');
-  alert('Voting paused.');
+document.getElementById('btnPause').addEventListener('click', ()=> {
+  votingPaused = true; localStorage.setItem('btech_paused','true'); document.getElementById('btnPause').style.display='none'; document.getElementById('btnResume').style.display='inline-block'; alert('Voting paused.');
 });
-document.getElementById('btnResume').addEventListener('click', ()=>{
-  votingPaused = false; document.getElementById('btnPause').style.display='inline-block'; document.getElementById('btnResume').style.display='none';
-  localStorage.setItem('btech_paused','false');
-  alert('Voting resumed.');
+document.getElementById('btnResume').addEventListener('click', ()=> {
+  votingPaused = false; localStorage.setItem('btech_paused','false'); document.getElementById('btnPause').style.display='inline-block'; document.getElementById('btnResume').style.display='none'; alert('Voting resumed.');
 });
 
 /* ------------------------
-   Firestore realtime for admin
+   Firestore realtime
    ------------------------ */
 let votesUnsub = null;
 async function setupRealtimeForAdmin(){
-  if(!db) { // fallback: compute from localStorage
-    renderTalliesFromLocal();
-    return;
-  }
-  // detach previous
+  if(!db){ renderTalliesFromLocal(); return; }
   if(votesUnsub) votesUnsub();
-
-  // subscribe to votes collection and recompute tallies on each change
   const votesCol = collection(db, 'votes');
-  votesUnsub = onSnapshot(votesCol, async (snapshot) => {
-    // build tallies
-    const tallies = {};
-    Object.keys(NOMINEES).forEach(k => tallies[k] = {});
+  votesUnsub = onSnapshot(votesCol, (snapshot) => {
+    const tallies = {}; Object.keys(NOMINEES).forEach(k=> tallies[k]={});
     const recent = [];
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
+    snapshot.forEach(snap => {
+      const data = snap.data();
       if(!data || !data.choices) return;
       Object.keys(data.choices).forEach(field => {
         tallies[field][data.choices[field]] = (tallies[field][data.choices[field]]||0) + 1;
@@ -671,15 +688,10 @@ async function setupRealtimeForAdmin(){
       recent.unshift({voter: data.voterName || data.voterSN, timestamp: data.time});
     });
     renderTallies(tallies, recent);
-  }, (err) => {
-    console.error('Snapshot failed', err);
-  });
-
-  // initial compute done via snapshot callback
+  }, err => console.error('Snapshot err', err));
 }
 
 function renderTallies(tallies, recent){
-  // update admin stats
   const totalVotes = recent ? recent.length : 0;
   document.getElementById('totalVotes').textContent = totalVotes;
   const totalStudents = Object.keys(whitelistMap).length || 100;
@@ -688,7 +700,6 @@ function renderTallies(tallies, recent){
   document.getElementById('remainingVotes').textContent = Math.max(0, totalStudents - totalVotes);
   if(recent && recent.length>0) document.getElementById('lastVoteTime').textContent = new Date(recent[0].timestamp).toLocaleTimeString();
 
-  // for each category, render cards
   Object.keys(NOMINEES).forEach(category => {
     const container = document.getElementById(category + 'Nominees');
     const nominees = NOMINEES[category];
@@ -706,7 +717,6 @@ function renderTallies(tallies, recent){
     });
   });
 
-  // recent feed
   const feed = document.getElementById('recentVotesFeed');
   if(!recent || recent.length===0){ feed.innerHTML = '<div class="vote-item" style="text-align:center;opacity:0.7">No votes yet</div>'; return; }
   feed.innerHTML = '';
@@ -719,30 +729,28 @@ function renderTallies(tallies, recent){
 }
 
 /* ------------------------
-   Fallback render from localStorage (if no Firestore)
+   Local fallback render
    ------------------------ */
 function renderTalliesFromLocal(){
-  const tallies = {};
-  Object.keys(NOMINEES).forEach(k => tallies[k] = {});
+  const tallies = {}; Object.keys(NOMINEES).forEach(k=>tallies[k]={});
   const votes = Object.keys(localStorage).filter(k=>k.startsWith('btech_voted_')).map(k=>JSON.parse(localStorage.getItem(k)));
-  votes.forEach(v => {
-    Object.keys(v.choices || {}).forEach(field => {
-      tallies[field][v.choices[field]] = (tallies[field][v.choices[field]] || 0)+1;
-    });
+  votes.forEach(v=>{
+    Object.keys(v.choices||{}).forEach(f=> tallies[f][v.choices[f]] = (tallies[f][v.choices[f]]||0)+1);
   });
   const recent = votes.sort((a,b)=> new Date(b.time) - new Date(a.time)).map(v=> ({voter:v.name||v.sn, timestamp:v.time}));
   renderTallies(tallies, recent);
 }
 
 /* ------------------------
-   Export data (admin)
+   Export
    ------------------------ */
 document.getElementById('btnExportData').addEventListener('click', async ()=>{
-  let tallies = null; let voters = [];
+  let voters = [];
   if(db){
-    // gather votes snapshot once
-    const snaps = await getDocs(collection(db,'votes'));
-    snaps.forEach(s => voters.push(s.data()));
+    try{
+      const snaps = await getDocs(collection(db,'votes'));
+      snaps.forEach(s=>voters.push(s.data()));
+    }catch(err){ console.warn('export fetch failed', err); }
   } else {
     voters = Object.keys(localStorage).filter(k=>k.startsWith('btech_voted_')).map(k=>JSON.parse(localStorage.getItem(k)));
   }
@@ -757,10 +765,12 @@ document.getElementById('btnExportData').addEventListener('click', async ()=>{
    Init
    ------------------------ */
 (function init(){
-  // show slide1 already active
   if(localStorage.getItem('btech_paused') === 'true') votingPaused = true;
   initializeHorizontalVoting();
+  // If adminDash active on load and db present, start realtime
+  const hash = location.hash.replace('#','');
+  if(hash) goTo(hash);
 })();
 </script>
 </body>
-</html>
+</html><button onclick="localStorage.clear()">RESET DEVICE VOTES</button>
